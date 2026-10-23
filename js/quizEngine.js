@@ -16,6 +16,7 @@ const QUIZ_ENGINE = {
   // Current Round State
   category: null,
   isDaily: false,
+  challengeMode: null, // { active: bool, challenger: string, targetScore: number }
   questions: [],
   currentIndex: 0,
   score: 0,
@@ -175,9 +176,9 @@ const QUIZ_ENGINE = {
   },
 
   /**
-   * Start a standard 10-question category quiz
+   * Start a standard 10-question category quiz (or identical challenge pool)
    */
-  startQuiz(categoryId) {
+  startQuiz(categoryId, specificQuestionIds = null) {
     const cat = CATEGORIES.find(c => c.id === categoryId) || CATEGORIES[0];
     this.category = cat;
     this.isDaily = false;
@@ -189,8 +190,19 @@ const QUIZ_ENGINE = {
     this.answersRecord = [];
 
     const pool = QUESTIONS_DATA[cat.id] || [];
-    // Shuffle pool and select 10 questions
-    this.questions = this.shuffleArray([...pool]).slice(0, QUIZ_CONFIG.questionsPerQuiz || 10);
+    
+    // If friend received a challenge with exact question IDs, serve the EXACT SAME questions!
+    if (specificQuestionIds && specificQuestionIds.length > 0) {
+      const matched = [];
+      specificQuestionIds.forEach(id => {
+        const found = pool.find(q => q.id === id);
+        if (found) matched.push(found);
+      });
+      this.questions = matched.length > 0 ? matched : this.shuffleArray([...pool]).slice(0, QUIZ_CONFIG.questionsPerQuiz || 10);
+    } else {
+      // Shuffle pool and select 10 questions
+      this.questions = this.shuffleArray([...pool]).slice(0, QUIZ_CONFIG.questionsPerQuiz || 10);
+    }
 
     if (this.questions.length === 0) {
       alert("No questions found for this category yet!");
@@ -198,7 +210,7 @@ const QUIZ_ENGINE = {
     }
 
     if (typeof trackEvent === "function") {
-      trackEvent("quiz_started", { category: cat.id, isDaily: false });
+      trackEvent("quiz_started", { category: cat.id, isDaily: false, isChallenge: !!(this.challengeMode && this.challengeMode.active) });
     }
 
     this.renderQuestion();
@@ -298,6 +310,18 @@ const QUIZ_ENGINE = {
     if (categoryBadge) {
       categoryBadge.innerHTML = `<span class="icon">${this.category.icon}</span> <span>${this.category.name}</span>`;
       categoryBadge.style.borderColor = this.category.color;
+    }
+
+    // Display Challenge HUD target if in head-to-head mode
+    const hudPill = document.getElementById("quiz-challenge-hud-pill");
+    const targetScoreEl = document.getElementById("hud-target-score");
+    if (hudPill && targetScoreEl) {
+      if (this.challengeMode && this.challengeMode.active) {
+        hudPill.classList.remove("hidden");
+        targetScoreEl.textContent = `${this.challengeMode.targetScore} PTS (${this.challengeMode.challenger})`;
+      } else {
+        hudPill.classList.add("hidden");
+      }
     }
 
     if (progressText) {
@@ -649,6 +673,66 @@ const QUIZ_ENGINE = {
       } else {
         feedbackMsg.textContent = "Good effort! Review the fun facts and try another round to boost your score.";
       }
+    }
+
+    // Render Head-to-Head Challenge Verdict
+    const verdictBox = document.getElementById("result-challenge-verdict");
+    if (verdictBox) {
+      if (this.challengeMode && this.challengeMode.active) {
+        const target = parseInt(this.challengeMode.targetScore, 10) || 0;
+        const challenger = this.challengeMode.challenger || "Challenger";
+        verdictBox.classList.remove("hidden");
+
+        if (points > target) {
+          const diff = points - target;
+          verdictBox.className = "challenge-verdict-box verdict-win";
+          verdictBox.innerHTML = `
+            <div class="verdict-icon">🏆</div>
+            <div class="verdict-content">
+              <h3>VICTORY! You Beat ${escapeHtml(challenger)}!</h3>
+              <p>You scored <strong>${points} PTS</strong> vs their <strong>${target} PTS</strong> (<strong>+${diff} PTS</strong> lead)! You rule the pitch!</p>
+            </div>
+          `;
+          this.playSound("fanfare");
+          this.triggerConfetti();
+        } else if (points < target) {
+          const diff = target - points;
+          verdictBox.className = "challenge-verdict-box verdict-lose";
+          verdictBox.innerHTML = `
+            <div class="verdict-icon">💔</div>
+            <div class="verdict-content">
+              <h3>${escapeHtml(challenger)} Won This Round!</h3>
+              <p>They scored <strong>${target} PTS</strong> vs your <strong>${points} PTS</strong>. Play again to claim your victory!</p>
+            </div>
+          `;
+        } else {
+          verdictBox.className = "challenge-verdict-box verdict-tie";
+          verdictBox.innerHTML = `
+            <div class="verdict-icon">🤝</div>
+            <div class="verdict-content">
+              <h3>It's an Exact Tie!</h3>
+              <p>Both of you achieved identical brilliance at <strong>${points} PTS</strong>!</p>
+            </div>
+          `;
+        }
+
+        // Customize WhatsApp button text for direct response
+        const waBtn = document.getElementById("share-btn-whatsapp");
+        if (waBtn) {
+          waBtn.innerHTML = `<span>💬</span> <span>Reply to ${escapeHtml(challenger)} on WhatsApp</span>`;
+        }
+      } else {
+        verdictBox.classList.add("hidden");
+      }
+    }
+
+    // Pre-populate nickname input
+    const nameInput = document.getElementById("share-challenger-name");
+    if (nameInput) {
+      nameInput.value = localStorage.getItem("quizverse_nickname") || "";
+      nameInput.oninput = (e) => {
+        localStorage.setItem("quizverse_nickname", e.target.value.trim());
+      };
     }
 
     if (badgesContainer) {

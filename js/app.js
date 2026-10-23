@@ -226,28 +226,61 @@ function initCategoriesGrid() {
 
 /**
  * Challenger Deep Link Detector (?quiz=cricket&challenger=Rahul&score=850)
+ * Solves timer auto-start: Displays a Face-Off Welcome Modal WITHOUT running the quiz or timer!
  */
 function checkChallengerParams() {
   const params = new URLSearchParams(window.location.search);
   const challenger = params.get("challenger");
   const quizCat = params.get("quiz");
   const score = params.get("score");
+  const qStr = params.get("q");
 
   if (challenger && quizCat && score) {
-    const banner = document.getElementById("challenge-alert-banner");
-    const textEl = document.getElementById("challenge-alert-text");
-    const acceptBtn = document.getElementById("challenge-accept-btn");
+    showChallengeFaceOffModal(challenger, quizCat, score, qStr);
+  }
+}
 
-    if (banner && textEl && acceptBtn) {
-      const catObj = CATEGORIES.find(c => c.id === quizCat) || { name: quizCat };
-      textEl.innerHTML = `🔥 <strong>${escapeHtml(challenger)}</strong> challenged you to beat <strong>${escapeHtml(score)} PTS</strong> in <strong>${catObj.name}</strong>!`;
-      banner.classList.remove("hidden");
+function showChallengeFaceOffModal(challenger, quizCat, score, qStr) {
+  const modal = document.getElementById("challenge-faceoff-modal");
+  const senderEl = document.getElementById("challenge-faceoff-sender");
+  const scoreEl = document.getElementById("challenge-faceoff-score");
+  const categoryEl = document.getElementById("challenge-faceoff-category");
+  const acceptBtn = document.getElementById("challenge-faceoff-accept-btn");
+  const declineBtn = document.getElementById("challenge-faceoff-decline-btn");
 
-      acceptBtn.onclick = () => {
-        banner.classList.add("hidden");
-        navigateTo(`quiz-${quizCat}`);
+  if (!modal) return;
+
+  const catObj = CATEGORIES.find(c => c.id === quizCat) || { name: quizCat, icon: "🎯" };
+
+  if (senderEl) senderEl.innerHTML = `<strong>${escapeHtml(challenger)}</strong> has challenged you!`;
+  if (scoreEl) scoreEl.textContent = `${escapeHtml(score)} PTS`;
+  if (categoryEl) categoryEl.textContent = `${catObj.icon} ${catObj.name}`;
+
+  modal.classList.remove("hidden");
+
+  if (acceptBtn) {
+    acceptBtn.onclick = () => {
+      modal.classList.add("hidden");
+      // Set head-to-head challenge mode
+      QUIZ_ENGINE.challengeMode = {
+        active: true,
+        challenger: challenger,
+        targetScore: parseInt(score, 10) || 0
       };
-    }
+
+      const qIds = qStr ? qStr.split(",") : null;
+      showView("view-quiz");
+      // Start the quiz freshly from Question 1 - Timer starts now!
+      QUIZ_ENGINE.startQuiz(quizCat, qIds);
+      updateSEO(`${catObj.name} Challenge`, `Face off against ${challenger}'s score of ${score} PTS in ${catObj.name}!`);
+    };
+  }
+
+  if (declineBtn) {
+    declineBtn.onclick = () => {
+      modal.classList.add("hidden");
+      navigateTo("home");
+    };
   }
 }
 
@@ -261,6 +294,14 @@ function initRouting() {
 
 function handleHashChange() {
   const hash = window.location.hash.replace("#", "") || "home";
+
+  // If URL has challenge params, show the home backdrop while the challenge modal is up
+  const params = new URLSearchParams(window.location.search);
+  if (hash === "challenge" || (params.get("challenger") && params.get("score") && !QUIZ_ENGINE.questions.length)) {
+    showView("view-home");
+    return;
+  }
+
   navigateTo(hash, false);
 }
 
@@ -553,6 +594,8 @@ function setupEventListeners() {
   }
 
   // Share Actions
+  const getQIds = () => (QUIZ_ENGINE.questions ? QUIZ_ENGINE.questions.map(q => q.id) : null);
+
   const nativeBtn = document.getElementById("share-btn-native");
   if (nativeBtn) {
     if (typeof navigator !== "undefined" && navigator.share) {
@@ -563,7 +606,8 @@ function setupEventListeners() {
           QUIZ_ENGINE.questions.length,
           QUIZ_ENGINE.totalPoints,
           QUIZ_ENGINE.category ? QUIZ_ENGINE.category.name : "Trivia",
-          QUIZ_ENGINE.category ? QUIZ_ENGINE.category.id : "cricket"
+          QUIZ_ENGINE.category ? QUIZ_ENGINE.category.id : "cricket",
+          getQIds()
         );
       };
     } else {
@@ -579,7 +623,8 @@ function setupEventListeners() {
         QUIZ_ENGINE.questions.length,
         QUIZ_ENGINE.totalPoints,
         QUIZ_ENGINE.category ? QUIZ_ENGINE.category.name : "Trivia",
-        QUIZ_ENGINE.category ? QUIZ_ENGINE.category.id : "cricket"
+        QUIZ_ENGINE.category ? QUIZ_ENGINE.category.id : "cricket",
+        getQIds()
       );
     };
   }
@@ -592,7 +637,8 @@ function setupEventListeners() {
         QUIZ_ENGINE.questions.length,
         QUIZ_ENGINE.totalPoints,
         QUIZ_ENGINE.category ? QUIZ_ENGINE.category.name : "Trivia",
-        QUIZ_ENGINE.category ? QUIZ_ENGINE.category.id : "cricket"
+        QUIZ_ENGINE.category ? QUIZ_ENGINE.category.id : "cricket",
+        getQIds()
       );
     };
   }
@@ -605,7 +651,8 @@ function setupEventListeners() {
         QUIZ_ENGINE.questions.length,
         QUIZ_ENGINE.totalPoints,
         QUIZ_ENGINE.category ? QUIZ_ENGINE.category.name : "Trivia",
-        QUIZ_ENGINE.category ? QUIZ_ENGINE.category.id : "cricket"
+        QUIZ_ENGINE.category ? QUIZ_ENGINE.category.id : "cricket",
+        getQIds()
       );
     };
   }
@@ -616,7 +663,8 @@ function setupEventListeners() {
       SHARE_ENGINE.copyChallengeLink(
         QUIZ_ENGINE.category ? QUIZ_ENGINE.category.id : "cricket",
         QUIZ_ENGINE.score,
-        QUIZ_ENGINE.totalPoints
+        QUIZ_ENGINE.totalPoints,
+        getQIds()
       );
     };
   }

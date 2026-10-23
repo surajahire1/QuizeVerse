@@ -171,26 +171,49 @@ const SHARE_ENGINE = {
   },
 
   /**
-   * Generates a custom challenge link with parameters
+   * Retrieves the sender's personalized nickname from input or storage
    */
-  getChallengeUrl(categoryId, score, points) {
+  getSenderName() {
+    const input = document.getElementById("share-challenger-name");
+    if (input && input.value.trim()) {
+      const name = input.value.trim();
+      localStorage.setItem("quizverse_nickname", name);
+      return name;
+    }
+    return localStorage.getItem("quizverse_nickname") || "A Friend";
+  },
+
+  /**
+   * Generates a custom challenge link with parameters (NO auto-start hash!)
+   */
+  getChallengeUrl(categoryId, score, points, questionIds) {
     const origin = window.location.origin + window.location.pathname;
     const catParam = categoryId || "cricket";
-    return `${origin}?quiz=${encodeURIComponent(catParam)}&challenger=A%20Friend&score=${encodeURIComponent(points)}#quiz-${catParam}`;
+    const sender = this.getSenderName();
+    
+    // Pass question IDs so friend receives the EXACT SAME question pool
+    let qParam = "";
+    if (questionIds && questionIds.length) {
+      qParam = `&q=${encodeURIComponent(questionIds.join(","))}`;
+    }
+
+    // Notice we use #challenge, NOT #quiz-catParam, preventing auto-timer start!
+    return `${origin}?quiz=${encodeURIComponent(catParam)}&challenger=${encodeURIComponent(sender)}&score=${encodeURIComponent(points)}${qParam}#challenge`;
   },
 
   /**
    * Builds the prefilled message string
    */
   getShareMessage(score, total, points, categoryName, challengeUrl) {
-    return `🔥 I just scored ${score}/${total} (${points} pts) on the ${categoryName} quiz on QuizVerse!\n\nCan you beat my score? Tap here to accept my challenge:\n👉 ${challengeUrl}`;
+    const sender = this.getSenderName();
+    return `🔥 ${sender} just scored ${score}/${total} (${points} pts) on the ${categoryName} quiz on QuizVerse!\n\nThink you can beat me? Tap here to accept my challenge:\n👉 ${challengeUrl}`;
   },
 
   /**
    * Share via WhatsApp (largest converting channel in India)
    */
-  shareWhatsApp(score, total, points, categoryName, categoryId) {
-    const url = this.getChallengeUrl(categoryId, score, points);
+  shareWhatsApp(score, total, points, categoryName, categoryId, questionIds) {
+    const url = this.getChallengeUrl(categoryId, score, points, questionIds);
     const text = this.getShareMessage(score, total, points, categoryName, url);
     const waUrl = `https://api.whatsapp.com/send?text=${encodeURIComponent(text)}`;
     window.open(waUrl, "_blank", "noopener,noreferrer");
@@ -202,9 +225,9 @@ const SHARE_ENGINE = {
   /**
    * Share via X / Twitter
    */
-  shareX(score, total, points, categoryName, categoryId) {
-    const url = this.getChallengeUrl(categoryId, score, points);
-    const text = `I just scored ${score}/${total} (${points} pts) in the #${categoryName.replace(/\s+/g, '')} quiz on @QuizVerse! Can you beat me? 🏆\n\nPlay here:`;
+  shareX(score, total, points, categoryName, categoryId, questionIds) {
+    const url = this.getChallengeUrl(categoryId, score, points, questionIds);
+    const text = `I just scored ${score}/${total} (${points} pts) in #${categoryName.replace(/\s+/g, '')} on @QuizVerse! Can you beat me? 🏆\n\nPlay here:`;
     const tweetUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent(url)}&hashtags=Trivia,QuizVerse,IndiaQuiz`;
     window.open(tweetUrl, "_blank", "noopener,noreferrer");
     if (typeof trackEvent === "function") {
@@ -215,8 +238,8 @@ const SHARE_ENGINE = {
   /**
    * Share via Telegram
    */
-  shareTelegram(score, total, points, categoryName, categoryId) {
-    const url = this.getChallengeUrl(categoryId, score, points);
+  shareTelegram(score, total, points, categoryName, categoryId, questionIds) {
+    const url = this.getChallengeUrl(categoryId, score, points, questionIds);
     const text = this.getShareMessage(score, total, points, categoryName, url);
     const tgUrl = `https://t.me/share/url?url=${encodeURIComponent(url)}&text=${encodeURIComponent(text)}`;
     window.open(tgUrl, "_blank", "noopener,noreferrer");
@@ -228,8 +251,8 @@ const SHARE_ENGINE = {
   /**
    * Share via Facebook
    */
-  shareFacebook(categoryId, score) {
-    const url = this.getChallengeUrl(categoryId, score, 0);
+  shareFacebook(categoryId, score, questionIds) {
+    const url = this.getChallengeUrl(categoryId, score, 0, questionIds);
     const fbUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}`;
     window.open(fbUrl, "_blank", "noopener,noreferrer");
     if (typeof trackEvent === "function") {
@@ -240,14 +263,15 @@ const SHARE_ENGINE = {
   /**
    * Native Mobile Web Share API with image attachment fallback
    */
-  async shareNative(score, total, points, categoryName, categoryId) {
-    const challengeUrl = this.getChallengeUrl(categoryId, score, points);
-    const shareText = `I scored ${score}/${total} (${points} pts) in ${categoryName} on QuizVerse! Can you beat me?`;
+  async shareNative(score, total, points, categoryName, categoryId, questionIds) {
+    const challengeUrl = this.getChallengeUrl(categoryId, score, points, questionIds);
+    const sender = this.getSenderName();
+    const shareText = `🔥 ${sender} scored ${score}/${total} (${points} pts) in ${categoryName} on QuizVerse! Can you beat me?`;
 
     if (navigator.share) {
       try {
         const shareData = {
-          title: `QuizVerse Trivia: I scored ${score}/${total}!`,
+          title: `QuizVerse Trivia: Can you beat ${sender}'s score?`,
           text: shareText,
           url: challengeUrl
         };
@@ -265,19 +289,19 @@ const SHARE_ENGINE = {
       } catch (err) {
         if (err.name !== "AbortError") {
           console.warn("[ShareEngine] Native share failed, falling back to copy link:", err);
-          this.copyChallengeLink(categoryId, score, points);
+          this.copyChallengeLink(categoryId, score, points, questionIds);
         }
       }
     } else {
-      this.copyChallengeLink(categoryId, score, points);
+      this.copyChallengeLink(categoryId, score, points, questionIds);
     }
   },
 
   /**
    * Copies challenge link to clipboard and shows an animated toast
    */
-  async copyChallengeLink(categoryId, score, points) {
-    const url = this.getChallengeUrl(categoryId, score, points);
+  async copyChallengeLink(categoryId, score, points, questionIds) {
+    const url = this.getChallengeUrl(categoryId, score, points, questionIds);
     try {
       if (navigator.clipboard && navigator.clipboard.writeText) {
         await navigator.clipboard.writeText(url);
@@ -289,7 +313,7 @@ const SHARE_ENGINE = {
         document.execCommand("copy");
         document.body.removeChild(tempInput);
       }
-      this.showToast("Link copied! Share it anywhere to challenge your friends 🔥");
+      this.showToast("Challenge link copied! Share it anywhere to challenge friends 🔥");
       if (typeof trackEvent === "function") {
         trackEvent("share_clicked", { platform: "copy_link", category: categoryId, score });
       }

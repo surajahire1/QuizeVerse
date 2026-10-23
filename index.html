@@ -129,16 +129,37 @@
     <div id="ad-slot-top" class="ad-slot-wrapper ad-top" role="region" aria-label="Advertisement Banner"></div>
   </div>
 
-  <!-- CHALLENGER INVITATION ALERT BANNER (Shown when ?quiz=...&challenger=...) -->
-  <div class="container">
-    <div id="challenge-alert-banner" class="alert-banner hidden">
-      <div class="alert-banner-content">
-        <div class="alert-banner-text" id="challenge-alert-text">
-          🔥 A friend has challenged you to beat their score!
-        </div>
-        <div class="alert-actions">
-          <button type="button" class="btn btn-gold btn-sm" id="challenge-accept-btn">Accept Challenge &rarr;</button>
-        </div>
+  <!-- ==============================================================
+       CHALLENGE FACE-OFF INVITATION MODAL
+       Does NOT auto-start timer; lets friend read and tap Accept!
+       ============================================================== -->
+  <div id="challenge-faceoff-modal" class="modal-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="challenge-faceoff-title">
+    <div class="modal-card challenge-modal-card">
+      <div class="challenge-swords-icon">⚔️</div>
+      <div class="challenge-versus-badge">HEAD-TO-HEAD BATTLE</div>
+      <h2 id="challenge-faceoff-title" class="challenge-title">Challenge Received!</h2>
+      <p class="challenge-from-text" id="challenge-faceoff-sender">
+        <strong>A Friend</strong> has challenged you!
+      </p>
+
+      <div class="challenge-target-card">
+        <div class="target-label">SCORE TO BEAT</div>
+        <div class="target-score" id="challenge-faceoff-score">850 PTS</div>
+        <div class="target-category" id="challenge-faceoff-category">🏏 Cricket Mania</div>
+      </div>
+
+      <p class="challenge-rules-hint">
+        ⚡ You will face the <strong>exact same 10 questions</strong> under a 15-second timer per question.<br>
+        Timer starts only when you click Accept below!
+      </p>
+
+      <div class="challenge-modal-actions">
+        <button type="button" class="btn btn-gold btn-large" id="challenge-faceoff-accept-btn">
+          ⚔️ Accept Challenge & Start &rarr;
+        </button>
+        <button type="button" class="btn btn-outline btn-sm" id="challenge-faceoff-decline-btn">
+          Maybe Later
+        </button>
       </div>
     </div>
   </div>
@@ -268,6 +289,11 @@
             <span class="icon">🏏</span> <span>Cricket</span>
           </div>
 
+          <!-- Challenge Target HUD Pill -->
+          <div class="challenge-hud-pill hidden" id="quiz-challenge-hud-pill">
+            <span class="hud-swords">⚔️</span> <span>Target:</span> <strong id="hud-target-score">0 PTS</strong>
+          </div>
+
           <div class="quiz-stats-group">
             <button type="button" class="btn-lifeline" id="quiz-lifeline-5050" title="50/50 Lifeline: Eliminate 2 wrong answers">
               <span>🪄</span> <span data-i18n="lifeline5050">50/50</span>
@@ -324,6 +350,9 @@
     <section id="view-results" class="view-container hidden">
       <div class="results-wrapper">
         <div class="result-card-hero">
+          <!-- Head-to-Head Challenge Verdict Box -->
+          <div id="result-challenge-verdict" class="challenge-verdict-box hidden"></div>
+
           <span style="font-size: 3rem;">🏆</span>
           <div class="result-score-badge" id="result-score-val">8 / 10</div>
           <div class="result-honor-title" id="result-rank-title">Master Blaster</div>
@@ -370,6 +399,14 @@
           <canvas id="share-canvas" style="display:none;"></canvas>
           <div class="sharecard-preview-box">
             <img id="share-preview-img" src="" alt="QuizVerse Score Card Preview" class="hidden">
+          </div>
+
+          <!-- Customizable Name for WhatsApp Challenge Loop -->
+          <div class="challenger-name-box">
+            <label for="share-challenger-name" class="name-box-label">Your Name for WhatsApp Challenge:</label>
+            <div class="name-input-wrapper">
+              <input type="text" id="share-challenger-name" placeholder="Enter your name (e.g. Rahul)" maxlength="20" autocomplete="name" />
+            </div>
           </div>
 
           <!-- High-Converting Primary WhatsApp Share Button -->
