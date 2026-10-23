@@ -1,0 +1,6 @@
+# Robots.txt for QuizVerse
+User-agent: *
+Allow: /
+
+# Sitemap Location
+Sitemap: https://quizverse.example.com/sitemap.xml

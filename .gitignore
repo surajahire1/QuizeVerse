@@ -1,0 +1,15 @@
+# Operating System files
+.DS_Store
+Thumbs.db
+Desktop.ini
+
+# Editor directories
+.vscode/
+.idea/
+
+# Node / NPM (if used for local testing)
+node_modules/
+package-lock.json
+
+# Logs & temp files
+*.log

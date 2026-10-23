@@ -1,0 +1,664 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>QuizVerse - India's Favorite Trivia & Daily Quiz Hub</title>
+  
+  <!-- Primary Meta Tags -->
+  <meta name="description" content="Play free online trivia quizzes in Cricket, India GK, Science, and Bollywood. Take the Daily Challenge, build your streak, and challenge your friends on WhatsApp!">
+  <meta name="keywords" content="cricket quiz, india gk quiz, science trivia, daily trivia challenge, whatsapp quiz, general knowledge india, quizverse">
+  <meta name="author" content="QuizVerse Media">
+  <link rel="canonical" href="https://quizverse.example.com">
+
+  <!-- Open Graph / Facebook -->
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://quizverse.example.com">
+  <meta property="og:title" content="QuizVerse - Daily Trivia & Brain Challenges">
+  <meta property="og:description" content="Test your Cricket, India GK, and Science IQ. Take the 15-second rapid trivia challenge and earn honorary titles!">
+  <meta property="og:image" content="https://quizverse.example.com/assets/og-preview.png">
+
+  <!-- Twitter Card -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:url" content="https://quizverse.example.com">
+  <meta name="twitter:title" content="QuizVerse - Daily Trivia & Brain Challenges">
+  <meta name="twitter:description" content="Can you beat my score? Play India's fastest daily trivia quizzes online.">
+  <meta name="twitter:image" content="https://quizverse.example.com/assets/og-preview.png">
+
+  <!-- Favicon / Emojis -->
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⚡</text></svg>">
+
+  <!-- Google Fonts: Poppins (Clean, modern, readable typography) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <!-- Core CSS -->
+  <link rel="stylesheet" href="css/style.css">
+
+  <!-- JSON-LD Structured Data for Rich Results (Quiz Schema) -->
+  <script type="application/ld+json" id="json-ld-schema">
+  {
+    "@context": "https://schema.org",
+    "@type": "Quiz",
+    "name": "QuizVerse Trivia Hub",
+    "description": "Daily interactive trivia challenges covering Indian cricket, general knowledge, science, and world history.",
+    "educationalLevel": "Intermediate",
+    "isAccessibleForFree": true,
+    "provider": {
+      "@type": "Organization",
+      "name": "QuizVerse",
+      "url": "https://quizverse.example.com"
+    }
+  }
+  </script>
+
+  <!-- ==============================================================
+       ANALYTICS & AD MONETIZATION INTEGRATION PLACEHOLDERS
+       ============================================================== -->
+
+  <!-- Google Search Console Site Verification Placeholder -->
+  <!-- <meta name="google-site-verification" content="YOUR_GOOGLE_SEARCH_CONSOLE_CODE_HERE" /> -->
+
+  <!-- Google Analytics 4 (GA4) Tracking Snippet Placeholder -->
+  <!--
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-XXXXXXXXXX"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-XXXXXXXXXX');
+  </script>
+  -->
+
+  <!-- Google AdSense Production Tag Placeholder (Uncomment when approved) -->
+  <!--
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-XXXXXXXXXXXXXXXX"
+       crossorigin="anonymous"></script>
+  -->
+</head>
+<body>
+
+  <!-- ==============================================================
+       SITE HEADER
+       ============================================================== -->
+  <header class="site-header">
+    <div class="container header-container">
+      <a href="#home" class="brand-logo" aria-label="QuizVerse Home">
+        <span class="brand-icon">⚡</span>
+        <span class="brand-name">QuizVerse</span>
+      </a>
+
+      <div class="header-actions">
+        <!-- Daily Streak Display -->
+        <button class="streak-pill" id="header-streak-pill" onclick="navigateTo('leaderboard')" aria-label="View Streak and Leaderboard">
+          <span class="flame">🔥</span>
+          <span class="streak-badge-count">0 Days</span>
+        </button>
+
+        <!-- Sound FX Toggle -->
+        <button type="button" class="header-icon-btn" id="sound-toggle-btn" aria-label="Toggle Sound Effects">
+          <span class="icon">🔊</span>
+          <span class="label" data-i18n="soundOn">Sound</span>
+        </button>
+
+        <!-- Light / Dark Mode Toggle -->
+        <button type="button" class="header-icon-btn" id="theme-toggle-btn" aria-label="Toggle Dark/Light Mode">
+          <span class="icon">☀️</span>
+          <span class="label" data-i18n="lightMode">Light</span>
+        </button>
+
+        <!-- Multi-Language Switcher -->
+        <div class="lang-select-wrapper">
+          <label for="lang-select" class="visually-hidden" style="display:none">Select Language</label>
+          <select id="lang-select" aria-label="Choose Language">
+            <option value="en">English</option>
+            <option value="hi">हिन्दी (Hindi)</option>
+            <option value="gu">ગુજરાતી (Gujarati)</option>
+          </select>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- ==============================================================
+       AD SLOT: TOP BANNER (728x90 Desktop, 320x50 Mobile)
+       ============================================================== -->
+  <!-- AD SLOT: top banner -->
+  <div class="container">
+    <div id="ad-slot-top" class="ad-slot-wrapper ad-top" role="region" aria-label="Advertisement Banner"></div>
+  </div>
+
+  <!-- CHALLENGER INVITATION ALERT BANNER (Shown when ?quiz=...&challenger=...) -->
+  <div class="container">
+    <div id="challenge-alert-banner" class="alert-banner hidden">
+      <div class="alert-banner-content">
+        <div class="alert-banner-text" id="challenge-alert-text">
+          🔥 A friend has challenged you to beat their score!
+        </div>
+        <div class="alert-actions">
+          <button type="button" class="btn btn-gold btn-sm" id="challenge-accept-btn">Accept Challenge &rarr;</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- DAILY NOTIFICATION / REMINDER BANNER -->
+  <div class="container">
+    <div id="daily-reminder-banner" class="alert-banner hidden">
+      <div class="alert-banner-content">
+        <div class="alert-banner-text">
+          <span>⏰</span>
+          <div>
+            <strong data-i18n="dailyReminderTitle">Never Miss a Daily Streak!</strong>
+            <span data-i18n="dailyReminderDesc">Get a quick morning ping when today's new Daily Challenge arrives.</span>
+          </div>
+        </div>
+        <div class="alert-actions">
+          <button type="button" class="btn btn-gold btn-sm" id="reminder-enable-btn" data-i18n="enableReminders">Enable Reminder</button>
+          <button type="button" class="btn btn-outline btn-sm" id="reminder-dismiss-btn" data-i18n="remindMeLater">Later</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==============================================================
+       MAIN APPLICATION VIEWS
+       ============================================================== -->
+  <main class="container main-content" id="main-content">
+
+    <!-- ------------------------------------------------------------
+         VIEW 1: HOME PAGE
+         ------------------------------------------------------------ -->
+    <section id="view-home" class="view-container">
+      <!-- Hero Section -->
+      <div class="hero-section">
+        <h1 class="hero-title">
+          India's Ultimate <br><span>Trivia Challenge</span>
+        </h1>
+        <p class="hero-subtitle" data-i18n="tagline">
+          Play daily trivia, test your speed under 15 seconds, and challenge your friends on WhatsApp!
+        </p>
+      </div>
+
+      <!-- Daily Challenge Feature Card -->
+      <div class="daily-card" id="daily-card-container">
+        <div class="daily-card-left">
+          <div class="daily-flame-icon">🔥</div>
+          <div>
+            <span class="daily-status-tag" id="daily-status-badge">New Today ⚡</span>
+            <h2 class="daily-card-title" data-i18n="dailyChallenge">Daily Challenge</h2>
+            <p class="daily-card-desc" data-i18n="dailyChallengeSubtitle">
+              5 unique questions handpicked for today. Test your daily streak!
+            </p>
+          </div>
+        </div>
+        <button type="button" class="btn btn-gold" id="daily-challenge-btn" data-i18n="playDaily">
+          Play Daily Challenge (5 Qs) &rarr;
+        </button>
+      </div>
+
+      <!-- Categories Arena Grid -->
+      <div class="section-header">
+        <h2 class="section-title">
+          <span>🎯</span> <span data-i18n="categories">Choose Your Arena</span>
+        </h2>
+        <a href="#leaderboard" class="btn btn-outline btn-sm" data-i18n="leaderboardTitle">
+          🏆 Top Scorers
+        </a>
+      </div>
+
+      <div class="categories-grid" id="categories-grid">
+        <!-- Dynamically injected from data/questions.js -->
+      </div>
+
+      <!-- Comprehensive SEO & AdSense Content Block -->
+      <article class="seo-content-card">
+        <h2>Welcome to QuizVerse: Free Trivia & Brain Games for India</h2>
+        <p>
+          QuizVerse is a fast, lightweight, and engaging online trivia destination built specifically for mobile users, students, cricket enthusiasts, and curious minds. Whether you are gearing up for competitive examinations, seeking a daily 3-minute mental workout, or looking to debate iconic IPL milestones and historical events with friends, QuizVerse delivers crisp, authentic questions paired with educational fun facts after every answer.
+        </p>
+        <p>
+          Our quiz engine operates completely within your web browser with zero app installation required. Each round features 10 randomized questions selected from our curated question bank with a 15-second countdown timer. Fast and accurate responses unlock substantial speed bonus points, allowing you to earn prestigious titles like <em>"Cricket Legend"</em>, <em>"Bharat Scholar"</em>, and <em>"Quantum Wizard"</em>. Build your daily streak, unlock achievements, and generate custom scorecards to challenge your WhatsApp groups today!
+        </p>
+      </article>
+    </section>
+
+    <!-- ------------------------------------------------------------
+         VIEW 2: CATEGORY DETAIL PAGE
+         ------------------------------------------------------------ -->
+    <section id="view-category-detail" class="view-container hidden">
+      <div class="category-detail-wrapper">
+        <div class="category-detail-hero">
+          <div class="category-icon-wrapper" id="cat-detail-icon" style="font-size: 3.5rem;">🏏</div>
+          <h1 id="cat-detail-title">Cricket Mania</h1>
+          <p id="cat-detail-desc" style="color: var(--text-secondary); margin: 8px 0 20px;">
+            Test your knowledge of IPL legends, World Cup records, and cricket history.
+          </p>
+          <div style="margin-bottom: 24px; font-weight: 600;">
+            Personal Best: <span id="cat-detail-best-score" style="color: var(--accent-gold);">None yet</span>
+          </div>
+          <button type="button" class="btn btn-primary" id="cat-detail-start-btn" style="padding: 14px 36px; font-size: 1.15rem;">
+            Start 10-Question Quiz &rarr;
+          </button>
+        </div>
+
+        <!-- 150-200 Words SEO Text for Category -->
+        <article class="seo-content-card">
+          <h2>About this Quiz Category</h2>
+          <div id="cat-detail-seo-text">
+            <!-- Dynamic Category SEO copy inserted here -->
+          </div>
+        </article>
+
+        <div style="text-align: center; margin-top: 24px;">
+          <a href="#home" class="btn btn-outline">&larr; Back to All Categories</a>
+        </div>
+      </div>
+    </section>
+
+    <!-- ------------------------------------------------------------
+         VIEW 3: QUIZ GAMEPLAY SCREEN
+         ------------------------------------------------------------ -->
+    <section id="view-quiz" class="view-container hidden">
+      <div class="quiz-wrapper">
+        <!-- Quiz HUD -->
+        <div class="quiz-header">
+          <div class="category-badge-pill" id="quiz-category-badge">
+            <span class="icon">🏏</span> <span>Cricket</span>
+          </div>
+
+          <div class="quiz-stats-group">
+            <button type="button" class="btn-lifeline" id="quiz-lifeline-5050" title="50/50 Lifeline: Eliminate 2 wrong answers">
+              <span>🪄</span> <span data-i18n="lifeline5050">50/50</span>
+            </button>
+            <div class="quiz-live-points" id="quiz-live-score">0 PTS</div>
+          </div>
+        </div>
+
+        <!-- Countdown Timer & Progress Bar -->
+        <div class="timer-container">
+          <div class="timer-meta">
+            <span><strong data-i18n="question">Question</strong> <span id="quiz-progress-text">1 / 10</span></span>
+            <span>⏱️ <strong id="quiz-timer-text">15s</strong></span>
+          </div>
+          <div class="timer-progress-track">
+            <div class="timer-progress-fill" id="quiz-timer-progress"></div>
+          </div>
+        </div>
+
+        <!-- Question Box -->
+        <div class="question-card">
+          <h2 class="question-text" id="quiz-question-text">
+            Loading question...
+          </h2>
+        </div>
+
+        <!-- 4 Answer Options -->
+        <div class="options-grid" id="quiz-options-grid" role="group" aria-label="Quiz Answer Choices">
+          <!-- Dynamically populated buttons -->
+        </div>
+
+        <!-- Educational Fun Fact Card (Shown after selection) -->
+        <div class="fact-card hidden" id="quiz-fact-card">
+          <!-- Dynamically populated fact -->
+        </div>
+
+        <!-- Controls: Next Question -->
+        <div class="quiz-controls">
+          <button type="button" class="btn btn-primary btn-next hidden" id="quiz-next-btn">
+            <span>Next Question &rarr;</span>
+          </button>
+        </div>
+
+        <!-- Keyboard Hint -->
+        <p class="text-muted" style="text-align: center; font-size: 0.8rem; margin-top: 16px;" data-i18n="keyboardHint">
+          Pro Tip: Use keys 1 - 4 on your keyboard to pick answers quickly!
+        </p>
+      </div>
+    </section>
+
+    <!-- ------------------------------------------------------------
+         VIEW 4: RESULTS & SOCIAL SHARING SCREEN
+         ------------------------------------------------------------ -->
+    <section id="view-results" class="view-container hidden">
+      <div class="results-wrapper">
+        <div class="result-card-hero">
+          <span style="font-size: 3rem;">🏆</span>
+          <div class="result-score-badge" id="result-score-val">8 / 10</div>
+          <div class="result-honor-title" id="result-rank-title">Master Blaster</div>
+          <p class="result-feedback-text" id="result-feedback-msg">
+            Sensational score! You're in the top tier of trivia minds!
+          </p>
+
+          <!-- Performance Breakdown Grid -->
+          <div class="stats-grid">
+            <div class="stat-box">
+              <div class="stat-label" data-i18n="totalPoints">Total Points</div>
+              <div class="stat-value" id="result-points-val">850</div>
+            </div>
+            <div class="stat-box">
+              <div class="stat-label" data-i18n="accuracy">Accuracy</div>
+              <div class="stat-value" id="result-accuracy-val">80%</div>
+            </div>
+            <div class="stat-box">
+              <div class="stat-label" data-i18n="speedBonus">Speed Bonus</div>
+              <div class="stat-value" id="result-speedbonus-val">+150</div>
+            </div>
+          </div>
+
+          <!-- Badges Section -->
+          <div class="badges-unlocked-section">
+            <div class="stat-label" style="margin-bottom: 8px;" data-i18n="badgesEarned">Badges Earned</div>
+            <div class="badges-list" id="result-badges-list">
+              <!-- Injected dynamically -->
+            </div>
+          </div>
+        </div>
+
+        <!-- ==============================================================
+             AD SLOT: RESULT PAGE (300x250 or Responsive, Above Share Buttons)
+             ============================================================== -->
+        <!-- AD SLOT: result page -->
+        <div id="ad-slot-result" class="ad-slot-wrapper ad-result" role="region" aria-label="Advertisement"></div>
+
+        <!-- Sharecard Preview Box -->
+        <div class="share-actions-group">
+          <h3 class="share-actions-title" data-i18n="shareScore">Share Your Victory Card</h3>
+          
+          <!-- Hidden Canvas where custom 1200x630 card is drawn -->
+          <canvas id="share-canvas" style="display:none;"></canvas>
+          <div class="sharecard-preview-box">
+            <img id="share-preview-img" src="" alt="QuizVerse Score Card Preview" class="hidden">
+          </div>
+
+          <!-- High-Converting Primary WhatsApp Share Button -->
+          <button type="button" class="btn share-btn-wa-primary" id="share-btn-whatsapp">
+            <span>💬</span> <span data-i18n="shareOnWhatsapp">Share on WhatsApp (Challenge Friends)</span>
+          </button>
+
+          <!-- Secondary Sharing Channels -->
+          <div class="social-buttons-secondary">
+            <button type="button" class="btn btn-social hidden" id="share-btn-native">
+              <span>📲</span> <span>Share via App</span>
+            </button>
+            <button type="button" class="btn btn-social" id="share-btn-x">
+              <span>𝕏</span> <span>X (Twitter)</span>
+            </button>
+            <button type="button" class="btn btn-social" id="share-btn-telegram">
+              <span>✈️</span> <span>Telegram</span>
+            </button>
+            <button type="button" class="btn btn-social" id="share-btn-copy">
+              <span>📋</span> <span data-i18n="copyLink">Copy Challenge Link</span>
+            </button>
+            <button type="button" class="btn btn-social" id="share-btn-download">
+              <span>📥</span> <span data-i18n="downloadCard">Save Image</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Navigation Action Buttons -->
+        <div class="results-action-buttons">
+          <button type="button" class="btn btn-primary" id="result-play-again-btn" data-i18n="playAgain">
+            🔄 Play Again
+          </button>
+          <button type="button" class="btn btn-outline" id="result-explore-btn" data-i18n="exploreCategories">
+            🎯 Explore More Quizzes
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ------------------------------------------------------------
+         VIEW 5: LEADERBOARD VIEW
+         ------------------------------------------------------------ -->
+    <section id="view-leaderboard" class="view-container hidden">
+      <div class="leaderboard-wrapper">
+        <div class="section-header">
+          <h1 class="section-title">
+            <span>🏆</span> <span data-i18n="leaderboardTitle">Local Champions (Top 10)</span>
+          </h1>
+          <a href="#home" class="btn btn-outline btn-sm">&larr; Back to Home</a>
+        </div>
+        <p class="text-muted" style="margin-bottom: 20px;">
+          Scores are saved locally on your device. Score higher with faster answer times to top the leaderboard!
+        </p>
+
+        <div class="leaderboard-table-container" id="leaderboard-list">
+          <!-- Dynamically populated leaderboard table -->
+        </div>
+      </div>
+    </section>
+
+    <!-- ------------------------------------------------------------
+         VIEW 6: ABOUT US (AdSense Mandatory Compliance)
+         ------------------------------------------------------------ -->
+    <section id="view-about" class="view-container hidden">
+      <div class="legal-page-wrapper">
+        <div class="legal-card">
+          <h1>About QuizVerse</h1>
+          <p>
+            Welcome to <strong>QuizVerse</strong>, India's fast-growing interactive trivia and daily brain workout hub. Founded with the mission to make learning enjoyable, accessible, and community-driven, QuizVerse delivers daily knowledge challenges across diverse disciplines including Indian Cricket, Incredible India General Knowledge, Science & Nature, Bollywood Cinema, and World History.
+          </p>
+          
+          <h2>Our Editorial Standards & Content Integrity</h2>
+          <p>
+            Every single trivia question in our database is independently researched, fact-checked, and authored from authoritative reference materials including standard encyclopedias, sports almanacs, scientific journals, and official historical archives. We strictly do not scrape or reproduce copyrighted test papers. Each question is accompanied by an educational "Did You Know?" fun fact to ensure that users do not merely test their knowledge, but enrich it on every play.
+          </p>
+
+          <h2>Accessible, Free, and Mobile-First</h2>
+          <p>
+            We believe knowledge should have zero barriers. QuizVerse is completely free to play, requires no account creation or app downloads, and is optimized to run smoothly even on entry-level 4G smartphones and low-bandwidth connections. Our platform is proudly built with multilingual support for English, Hindi (हिन्दी), and Gujarati (ગુજરાતી).
+          </p>
+
+          <h2>Contact & Editorial Office</h2>
+          <p>
+            Have feedback, a question correction, or a business inquiry? We would love to hear from you. Visit our <a href="#contact">Contact Page</a> or write to our editorial desk at <code>editorial@quizverse.example.com</code>.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ------------------------------------------------------------
+         VIEW 7: CONTACT US (AdSense Mandatory Compliance)
+         ------------------------------------------------------------ -->
+    <section id="view-contact" class="view-container hidden">
+      <div class="legal-page-wrapper">
+        <div class="legal-card">
+          <h1>Contact Us</h1>
+          <p>
+            We value input from our vibrant community of trivia players, educators, and quizmasters. If you have questions regarding our content, privacy policies, advertising partnerships, or wish to report a question error, please reach out to us using any of the channels below.
+          </p>
+
+          <h2>General Inquiries & Support</h2>
+          <ul>
+            <li><strong>Email:</strong> <code>support@quizverse.example.com</code></li>
+            <li><strong>Editorial Desk:</strong> <code>editorial@quizverse.example.com</code></li>
+            <li><strong>Advertising & Partnerships:</strong> <code>ads@quizverse.example.com</code></li>
+            <li><strong>Response Window:</strong> We strive to answer all inquiries within 24 to 48 business hours.</li>
+          </ul>
+
+          <h2>Editorial Office Address</h2>
+          <p>
+            QuizVerse Media Digital Labs<br>
+            Tech Park, Electronic City, Phase 1<br>
+            Bengaluru, Karnataka 560100, India
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ------------------------------------------------------------
+         VIEW 8: PRIVACY POLICY (AdSense & GDPR Mandatory Compliance)
+         ------------------------------------------------------------ -->
+    <section id="view-privacy" class="view-container hidden">
+      <div class="legal-page-wrapper">
+        <div class="legal-card">
+          <h1>Privacy Policy</h1>
+          <p><em>Last updated: October 2026</em></p>
+
+          <p>
+            At <strong>QuizVerse</strong>, accessible from <code>https://quizverse.example.com</code>, one of our main priorities is the privacy of our visitors. This Privacy Policy document outlines the types of information collected and recorded by QuizVerse and how we use it.
+          </p>
+
+          <h2>1. Information We Collect</h2>
+          <p>
+            QuizVerse does not require mandatory user registration or collection of personally identifiable information (PII) like national identity numbers or payment details to play quizzes. Any gameplay data such as high scores, streaks, and custom nicknames are stored exclusively in your browser's local storage (<code>localStorage</code>) on your own device.
+          </p>
+
+          <h2>2. Log Files</h2>
+          <p>
+            QuizVerse follows a standard procedure of using log files. These files log visitors when they visit websites. The information collected by log files includes internet protocol (IP) addresses, browser type, Internet Service Provider (ISP), date and time stamp, referring/exit pages, and possibly the number of clicks. These are not linked to any information that is personally identifiable. The purpose of the information is for analyzing trends, administering the site, tracking users' movement on the website, and gathering demographic information.
+          </p>
+
+          <h2>3. Cookies and Web Beacons</h2>
+          <p>
+            Like any other website, QuizVerse uses 'cookies'. These cookies are used to store information including visitors' preferences, language selection, light/dark theme preference, and the pages on the website that the visitor accessed or visited. The information is used to optimize the users' experience by customizing our web page content based on visitors' browser type and/or other information.
+          </p>
+
+          <h2>4. Google DoubleClick DART Cookie & Google AdSense</h2>
+          <p>
+            Google is one of our third-party advertising vendors on our site. It also uses cookies, known as DART cookies, to serve ads to our site visitors based upon their visit to QuizVerse and other sites on the internet. However, visitors may choose to decline the use of DART cookies by visiting the Google ad and content network Privacy Policy at the following URL: <a href="https://policies.google.com/technologies/ads" target="_blank" rel="noopener">https://policies.google.com/technologies/ads</a>.
+          </p>
+
+          <h2>5. Third-Party Privacy Policies</h2>
+          <p>
+            QuizVerse's Privacy Policy does not apply to other advertisers or websites. Thus, we are advising you to consult the respective Privacy Policies of these third-party ad servers for more detailed information. It may include their practices and instructions about how to opt-out of certain options.
+          </p>
+
+          <h2>6. Children's Information</h2>
+          <p>
+            Another part of our priority is adding protection for children while using the internet. We encourage parents and guardians to observe, participate in, and/or monitor and guide their online activity. QuizVerse does not knowingly collect any Personal Identifiable Information from children under the age of 13.
+          </p>
+
+          <h2>7. Consent</h2>
+          <p>
+            By using our website, you hereby consent to our Privacy Policy and agree to its terms.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ------------------------------------------------------------
+         VIEW 9: TERMS AND CONDITIONS (AdSense Mandatory Compliance)
+         ------------------------------------------------------------ -->
+    <section id="view-terms" class="view-container hidden">
+      <div class="legal-page-wrapper">
+        <div class="legal-card">
+          <h1>Terms and Conditions</h1>
+          <p><em>Last updated: October 2026</em></p>
+
+          <p>
+            Welcome to QuizVerse! These terms and conditions outline the rules and regulations for the use of QuizVerse's Website, located at <code>https://quizverse.example.com</code>.
+          </p>
+
+          <h2>1. License & Permitted Use</h2>
+          <p>
+            Unless otherwise stated, QuizVerse and/or its licensors own the intellectual property rights for all material on QuizVerse. All intellectual property rights are reserved. You may access this from QuizVerse for your own personal, non-commercial use subject to restrictions set in these terms and conditions.
+          </p>
+          <p>You must not:</p>
+          <ul>
+            <li>Republish question banks or software scripts from QuizVerse without written credit.</li>
+            <li>Sell, rent, or sub-license material from QuizVerse.</li>
+            <li>Reproduce, duplicate, or copy gameplay mechanics for commercial exploitation.</li>
+            <li>Use automated bots or scrapers to manipulate high score leaderboards.</li>
+          </ul>
+
+          <h2>2. Disclaimer of Warranties</h2>
+          <p>
+            Quiz questions, fun facts, and explanations provided on QuizVerse are for entertainment and general educational purposes only. While every attempt is made to guarantee strict historical and factual accuracy, QuizVerse provides all content on an "as is" and "as available" basis without warranties of any kind.
+          </p>
+
+          <h2>3. Limitation of Liability</h2>
+          <p>
+            In no event shall QuizVerse, nor any of its officers, directors, and employees, be held liable for anything arising out of or in any way connected with your use of this Website.
+          </p>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ==============================================================
+       AD SLOT: BOTTOM BANNER (728x90 Desktop, 320x50 Mobile)
+       ============================================================== -->
+  <!-- AD SLOT: bottom banner -->
+  <div class="container">
+    <div id="ad-slot-bottom" class="ad-slot-wrapper ad-bottom" role="region" aria-label="Advertisement Banner"></div>
+  </div>
+
+  <!-- ==============================================================
+       MID-QUIZ INTERSTITIAL AD MODAL (TRIGGERED AFTER QUESTION 5)
+       Policy Compliant: Never overlaps quiz, 3s countdown, clear Continue button
+       ============================================================== -->
+  <!-- AD SLOT: between question rounds interstitial -->
+  <div id="interstitial-modal" class="modal-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="interstitial-title">
+    <div class="modal-card">
+      <span style="font-size: 2.2rem;">⏱️</span>
+      <h3 id="interstitial-title" style="margin: 8px 0;" data-i18n="sponsorNotice">Quick Halfway Break</h3>
+      <p id="interstitial-subtitle" class="text-muted" style="font-size: 0.9rem;">
+        You're halfway through! Take a breath while we prepare the next round.
+      </p>
+
+      <div id="interstitial-ad-box" class="interstitial-ad-box">
+        <!-- Interstitial Ad rendered by js/ads.js -->
+      </div>
+
+      <button type="button" class="btn btn-primary" id="interstitial-continue-btn" style="width: 100%;">
+        <span>Continue to Question 6 &rarr;</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- ==============================================================
+       COOKIE & AD PERSONALIZATION CONSENT BANNER
+       ============================================================== -->
+  <aside id="cookie-consent-banner" class="cookie-banner hidden" aria-label="Privacy & Cookie Consent">
+    <div class="cookie-content">
+      <div class="cookie-text" data-i18n="cookieNotice">
+        We use cookies and third-party advertising services (like Google AdSense) to deliver personalized trivia experiences and relevant ads.
+      </div>
+      <div class="cookie-actions">
+        <button type="button" class="btn btn-primary btn-sm" id="cookie-accept-btn" data-i18n="acceptCookies">Accept All</button>
+        <button type="button" class="btn btn-outline btn-sm" id="cookie-decline-btn" data-i18n="declineCookies">Essential Only</button>
+      </div>
+    </div>
+  </aside>
+
+  <!-- CONFETTI CANVAS OVERLAY -->
+  <canvas id="confetti-canvas" class="hidden" style="position:fixed;inset:0;pointer-events:none;z-index:9999;width:100%;height:100%;"></canvas>
+
+  <!-- ==============================================================
+       SITE FOOTER
+       ============================================================== -->
+  <footer class="site-footer">
+    <div class="container">
+      <div class="footer-top">
+        <div class="footer-brand">
+          <h4>⚡ QuizVerse</h4>
+          <p data-i18n="tagline">India's Ultimate Trivia & Daily Quiz Hub. Fast, mobile-first, and 100% free.</p>
+        </div>
+        <nav class="footer-links-group" aria-label="Footer Navigation">
+          <a href="#about" data-i18n="aboutUs">About Us</a>
+          <a href="#contact" data-i18n="contactUs">Contact Us</a>
+          <a href="#privacy" data-i18n="privacyPolicy">Privacy Policy</a>
+          <a href="#terms" data-i18n="termsConditions">Terms & Conditions</a>
+          <a href="#leaderboard" data-i18n="leaderboardTitle">Leaderboard</a>
+        </nav>
+      </div>
+      <div class="footer-bottom">
+        <p>&copy; 2026 QuizVerse Media. <span data-i18n="allRightsReserved">All rights reserved. Made with ❤️ for trivia lovers in India and worldwide.</span></p>
+      </div>
+    </div>
+  </footer>
+
+  <!-- ==============================================================
+       CORE JAVASCRIPT BUNDLE (Pure Vanilla JS, Zero External Libraries)
+       ============================================================== -->
+  <script src="data/questions.js"></script>
+  <script src="js/ads.js"></script>
+  <script src="js/share.js"></script>
+  <script src="js/quizEngine.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
