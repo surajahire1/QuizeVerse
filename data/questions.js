@@ -9,9 +9,9 @@ const QUIZ_CONFIG = {
   siteUrl: (typeof window !== "undefined" && window.location && window.location.origin) ? window.location.origin : "https://quizverse.example.com",
   questionsPerQuiz: 10,
   dailyQuestionsCount: 5,
-  timePerQuestion: 15, // seconds
+  timePerQuestion: 30, // 30-second timer per question
   basePointsPerCorrect: 100,
-  speedBonusMultiplier: 10, // points added per second remaining
+  speedBonusMultiplier: 5, // 5 points per second remaining (up to +150 bonus)
   streakMilestones: [3, 7, 14, 30],
   adEveryXQuestions: 5, // Shows interstitial card after question 5
   adSense: {
@@ -71,7 +71,7 @@ Incredible India GK tests your grasp of the Indian Constitution drafted under Dr
     seoTitle: "Science & Nature Quiz - Physics, Space, Biology & Chemistry Trivia",
     seoDesc: "Challenge your intellect with our Science and Nature trivia quiz. Learn fascinating facts about astronomy, quantum laws, cellular biology, and chemical reactions.",
     seoContent: `Science is humanity's greatest adventure in uncovering the fundamental laws that govern the cosmos, life on Earth, and subatomic matter. From Sir Isaac Newton's laws of universal gravitation and Albert Einstein's revolutionary spacetime theory to the groundbreaking quantum mechanics formulated by Planck, Bohr, and Raman, scientific exploration continuously reshapes our civilization.
-Our Science & Nature quiz spans astrophysics, the periodic table of elements, human anatomy, evolutionary biology, genetics, and modern technological breakthroughs. Discover why the sky appears blue through Rayleigh scattering, how photosynthesis fuels Earth's atmospheric oxygen, and what happens at the event horizon of a supermassive black hole. Designed to be both rigorous and fun, each question features a 15-second countdown timer and instant educational fun facts to satisfy your curious mind.`
+Our Science & Nature quiz spans astrophysics, the periodic table of elements, human anatomy, evolutionary biology, genetics, and modern technological breakthroughs. Discover why the sky appears blue through Rayleigh scattering, how photosynthesis fuels Earth's atmospheric oxygen, and what happens at the event horizon of a supermassive black hole. Designed to be both rigorous and fun, each question features a 30-second countdown timer and instant educational fun facts to satisfy your curious mind.`
   },
   {
     id: "bollywood",

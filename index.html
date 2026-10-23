@@ -15,7 +15,7 @@
   <meta property="og:type" content="website">
   <meta property="og:url" content="https://quizverse.example.com">
   <meta property="og:title" content="QuizVerse - Daily Trivia & Brain Challenges">
-  <meta property="og:description" content="Test your Cricket, India GK, and Science IQ. Take the 15-second rapid trivia challenge and earn honorary titles!">
+  <meta property="og:description" content="Test your Cricket, India GK, and Science IQ. Take the 30-second rapid trivia challenge and earn honorary titles!">
   <meta property="og:image" content="https://quizverse.example.com/assets/og-preview.png">
 
   <!-- Twitter Card -->
@@ -148,14 +148,26 @@
         <div class="target-category" id="challenge-faceoff-category">🏏 Cricket Mania</div>
       </div>
 
-      <p class="challenge-rules-hint">
-        ⚡ You will face the <strong>exact same 10 questions</strong> under a 15-second timer per question.<br>
+      <!-- Alert shown if user already attempted this specific challenge -->
+      <div id="challenge-already-attempted" class="already-attempted-card hidden">
+        <div class="attempted-icon">🔒</div>
+        <div class="attempted-content">
+          <h4>Challenge Already Attempted!</h4>
+          <p id="challenge-attempted-summary">You have already answered these questions to prevent cheating.</p>
+        </div>
+      </div>
+
+      <p class="challenge-rules-hint" id="challenge-rules-hint-text">
+        ⚡ You will face 10 questions with a <strong>30-second timer per question</strong>.<br>
         Timer starts only when you click Accept below!
       </p>
 
-      <div class="challenge-modal-actions">
+      <div class="challenge-modal-actions" id="challenge-modal-actions">
         <button type="button" class="btn btn-gold btn-large" id="challenge-faceoff-accept-btn">
           ⚔️ Accept Challenge & Start &rarr;
+        </button>
+        <button type="button" class="btn btn-primary btn-large hidden" id="challenge-faceoff-rematch-btn">
+          🔄 Start Fresh Rematch (New Questions) &rarr;
         </button>
         <button type="button" class="btn btn-outline btn-sm" id="challenge-faceoff-decline-btn">
           Maybe Later
@@ -198,7 +210,7 @@
           India's Ultimate <br><span>Trivia Challenge</span>
         </h1>
         <p class="hero-subtitle" data-i18n="tagline">
-          Play daily trivia, test your speed under 15 seconds, and challenge your friends on WhatsApp!
+          Play daily trivia, test your speed under 30 seconds, and challenge your friends on WhatsApp!
         </p>
       </div>
 
@@ -240,7 +252,7 @@
           QuizVerse is a fast, lightweight, and engaging online trivia destination built specifically for mobile users, students, cricket enthusiasts, and curious minds. Whether you are gearing up for competitive examinations, seeking a daily 3-minute mental workout, or looking to debate iconic IPL milestones and historical events with friends, QuizVerse delivers crisp, authentic questions paired with educational fun facts after every answer.
         </p>
         <p>
-          Our quiz engine operates completely within your web browser with zero app installation required. Each round features 10 randomized questions selected from our curated question bank with a 15-second countdown timer. Fast and accurate responses unlock substantial speed bonus points, allowing you to earn prestigious titles like <em>"Cricket Legend"</em>, <em>"Bharat Scholar"</em>, and <em>"Quantum Wizard"</em>. Build your daily streak, unlock achievements, and generate custom scorecards to challenge your WhatsApp groups today!
+          Our quiz engine operates completely within your web browser with zero app installation required. Each round features 10 randomized questions selected from our curated question bank with a 30-second countdown timer. Fast and accurate responses unlock substantial speed bonus points, allowing you to earn prestigious titles like <em>"Cricket Legend"</em>, <em>"Bharat Scholar"</em>, and <em>"Quantum Wizard"</em>. Build your daily streak, unlock achievements, and generate custom scorecards to challenge your WhatsApp groups today!
         </p>
       </article>
     </section>
@@ -306,7 +318,7 @@
         <div class="timer-container">
           <div class="timer-meta">
             <span><strong data-i18n="question">Question</strong> <span id="quiz-progress-text">1 / 10</span></span>
-            <span>⏱️ <strong id="quiz-timer-text">15s</strong></span>
+            <span>⏱️ <strong id="quiz-timer-text">30s</strong></span>
           </div>
           <div class="timer-progress-track">
             <div class="timer-progress-fill" id="quiz-timer-progress"></div>

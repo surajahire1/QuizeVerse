@@ -2,7 +2,7 @@
  * QuizVerse - Core Quiz Gameplay Engine
  * Implements:
  * - 10-Question Random Round Picker & Seeded Daily Challenge
- * - 15-Second Progress Timer with auto-advance
+ * - 30-Second Progress Timer with auto-advance
  * - Instant feedback & Fun Fact reveal
  * - Score + Speed bonus calculator
  * - 50/50 Lifeline (once per quiz)
@@ -24,7 +24,7 @@ const QUIZ_ENGINE = {
   totalPoints: 0,
   lifeline5050Used: false,
   timerInterval: null,
-  timeLeft: 15,
+  timeLeft: 30,
   isAnswered: false,
   soundEnabled: true,
   answersRecord: [], // History for review/analytics
@@ -293,7 +293,7 @@ const QUIZ_ENGINE = {
     }
 
     this.isAnswered = false;
-    this.timeLeft = QUIZ_CONFIG.timePerQuestion || 15;
+    this.timeLeft = QUIZ_CONFIG.timePerQuestion || 30;
 
     // Reset UI containers
     const categoryBadge = document.getElementById("quiz-category-badge");
@@ -388,13 +388,13 @@ const QUIZ_ENGINE = {
   startTimer(timerText, timerProgress) {
     clearInterval(this.timerInterval);
 
-    const totalTime = QUIZ_CONFIG.timePerQuestion || 15;
+    const totalTime = QUIZ_CONFIG.timePerQuestion || 30;
     const updateDisplay = () => {
       if (timerText) timerText.textContent = `${this.timeLeft}s`;
       if (timerProgress) {
         const percentage = (this.timeLeft / totalTime) * 100;
         timerProgress.style.width = `${percentage}%`;
-        if (this.timeLeft <= 5) {
+        if (this.timeLeft <= 6) {
           timerProgress.classList.add("warning");
           this.playSound("tick");
         } else {
@@ -590,6 +590,20 @@ const QUIZ_ENGINE = {
     // Save Daily Challenge completion & Streak
     if (this.isDaily) {
       this.recordDailyCompletion();
+    }
+
+    // Record challenge completion signature to prevent cheating/replaying identical questions
+    if (this.challengeMode && this.challengeMode.active && this.challengeMode.signature) {
+      try {
+        localStorage.setItem("quizverse_done_" + this.challengeMode.signature, JSON.stringify({
+          attemptedAt: new Date().toISOString(),
+          userScore: points,
+          challenger: this.challengeMode.challenger,
+          challengerScore: this.challengeMode.targetScore
+        }));
+      } catch (e) {
+        console.warn("[QuizEngine] Could not save challenge completion:", e);
+      }
     }
 
     // Save Local High Score

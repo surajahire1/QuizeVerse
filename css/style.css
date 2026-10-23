@@ -1236,6 +1236,37 @@ button:focus-visible, a:focus-visible, select:focus-visible, input:focus-visible
   margin-bottom: 16px;
 }
 
+.already-attempted-card {
+  background: rgba(239, 68, 68, 0.15);
+  border: 1.5px solid #ef4444;
+  border-radius: var(--radius-md);
+  padding: 14px;
+  margin-bottom: 16px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  text-align: left;
+}
+
+.already-attempted-card .attempted-icon {
+  font-size: 2rem;
+  flex-shrink: 0;
+}
+
+.already-attempted-card h4 {
+  font-size: 1rem;
+  font-weight: 800;
+  color: #f87171;
+  margin-bottom: 4px;
+}
+
+.already-attempted-card p {
+  font-size: 0.82rem;
+  color: var(--text-secondary);
+  line-height: 1.4;
+  margin: 0;
+}
+
 .target-label {
   font-size: 0.75rem;
   font-weight: 700;

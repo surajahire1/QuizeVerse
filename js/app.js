@@ -240,13 +240,25 @@ function checkChallengerParams() {
   }
 }
 
+/**
+ * Generates unique signature for a specific challenge to prevent replaying same questions
+ */
+function getChallengeSignature(quizCat, challenger, score, qStr) {
+  const cleanQ = (qStr || "").split(",").slice(0, 10).join("-");
+  return `${quizCat}_${challenger}_${score}_${cleanQ}`;
+}
+
 function showChallengeFaceOffModal(challenger, quizCat, score, qStr) {
   const modal = document.getElementById("challenge-faceoff-modal");
   const senderEl = document.getElementById("challenge-faceoff-sender");
   const scoreEl = document.getElementById("challenge-faceoff-score");
   const categoryEl = document.getElementById("challenge-faceoff-category");
   const acceptBtn = document.getElementById("challenge-faceoff-accept-btn");
+  const rematchBtn = document.getElementById("challenge-faceoff-rematch-btn");
   const declineBtn = document.getElementById("challenge-faceoff-decline-btn");
+  const alreadyAttemptedBox = document.getElementById("challenge-already-attempted");
+  const attemptedSummary = document.getElementById("challenge-attempted-summary");
+  const rulesHint = document.getElementById("challenge-rules-hint-text");
 
   if (!modal) return;
 
@@ -256,24 +268,67 @@ function showChallengeFaceOffModal(challenger, quizCat, score, qStr) {
   if (scoreEl) scoreEl.textContent = `${escapeHtml(score)} PTS`;
   if (categoryEl) categoryEl.textContent = `${catObj.icon} ${catObj.name}`;
 
+  const sig = getChallengeSignature(quizCat, challenger, score, qStr);
+  const prevAttemptRaw = localStorage.getItem("quizverse_done_" + sig);
+
   modal.classList.remove("hidden");
 
-  if (acceptBtn) {
-    acceptBtn.onclick = () => {
-      modal.classList.add("hidden");
-      // Set head-to-head challenge mode
-      QUIZ_ENGINE.challengeMode = {
-        active: true,
-        challenger: challenger,
-        targetScore: parseInt(score, 10) || 0
-      };
+  // Check if player ALREADY attempted this specific question challenge
+  if (prevAttemptRaw) {
+    let prev = {};
+    try { prev = JSON.parse(prevAttemptRaw); } catch (e) {}
 
-      const qIds = qStr ? qStr.split(",") : null;
-      showView("view-quiz");
-      // Start the quiz freshly from Question 1 - Timer starts now!
-      QUIZ_ENGINE.startQuiz(quizCat, qIds);
-      updateSEO(`${catObj.name} Challenge`, `Face off against ${challenger}'s score of ${score} PTS in ${catObj.name}!`);
-    };
+    if (alreadyAttemptedBox) {
+      alreadyAttemptedBox.classList.remove("hidden");
+      if (attemptedSummary) {
+        attemptedSummary.innerHTML = `You have already played this challenge against <strong>${escapeHtml(challenger)}</strong>!<br>Your Previous Score: <strong>${prev.userScore || 0} PTS</strong> vs ${escapeHtml(challenger)}'s <strong>${score} PTS</strong>.<br><em>To ensure fair play and prevent cheating, you cannot replay the exact same questions.</em>`;
+      }
+    }
+
+    if (rulesHint) {
+      rulesHint.innerHTML = `⚡ Ready to prove yourself? Start a <strong>Fresh Rematch</strong> with completely new questions!`;
+    }
+
+    // Hide direct accept button, show rematch button
+    if (acceptBtn) acceptBtn.classList.add("hidden");
+    if (rematchBtn) {
+      rematchBtn.classList.remove("hidden");
+      rematchBtn.onclick = () => {
+        modal.classList.add("hidden");
+        // Start fresh random quiz (NOT old questions!)
+        QUIZ_ENGINE.challengeMode = {
+          active: true,
+          challenger: challenger,
+          targetScore: parseInt(score, 10) || 0,
+          signature: null
+        };
+        showView("view-quiz");
+        QUIZ_ENGINE.startQuiz(quizCat); // No qIds passed = fresh randomized questions!
+      };
+    }
+  } else {
+    // First time playing this challenge
+    if (alreadyAttemptedBox) alreadyAttemptedBox.classList.add("hidden");
+    if (rematchBtn) rematchBtn.classList.add("hidden");
+    if (acceptBtn) {
+      acceptBtn.classList.remove("hidden");
+      acceptBtn.onclick = () => {
+        modal.classList.add("hidden");
+        // Set head-to-head challenge mode with unique signature
+        QUIZ_ENGINE.challengeMode = {
+          active: true,
+          challenger: challenger,
+          targetScore: parseInt(score, 10) || 0,
+          signature: sig
+        };
+
+        const qIds = qStr ? qStr.split(",") : null;
+        showView("view-quiz");
+        // Start the quiz freshly from Question 1 - 30s Timer starts now!
+        QUIZ_ENGINE.startQuiz(quizCat, qIds);
+        updateSEO(`${catObj.name} Challenge`, `Face off against ${challenger}'s score of ${score} PTS in ${catObj.name}!`);
+      };
+    }
   }
 
   if (declineBtn) {
